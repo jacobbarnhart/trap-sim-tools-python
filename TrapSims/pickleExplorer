@@ -1,0 +1,56 @@
+import numpy as np
+import pandas as pd
+import pickle
+
+
+
+perm = [1,2,0]
+
+f = open("/Users/jacobbarnhart/Downloads/SQRLab Data/CENTRALonly.pkl", "rb")
+trap = pickle.load(f, encoding="latin1")
+
+Xi = trap['X'] 
+Yi = trap['Y']
+Zi = trap['Z']
+
+# Get everything into expected coordinates (described in project_parameters).
+coords = [Xi, Yi, Zi]
+X = coords[perm[0]]
+Y = coords[perm[1]]
+Z = coords[perm[2]]
+
+# Where is the initialization for this?
+X, Y, Z = X, Y, Z
+nx, ny, nz = len(X), len(Y), len(Z)
+numElectrodes = 12
+
+# Truncate axial direction to only care about part that is spanned by electrodes
+# Get all the positions of the electrodes
+pos = []
+for key in trap['electrodes']:
+    p = trap['electrodes'][key]['position']
+    pos.append(p)
+# Get all the x values of the positions, and then get the min and max.
+xs = [p[0] for p in pos]
+Z_max = max(xs) / 1000.0
+Z_min = min(xs) / 1000.0 # Where does 1000 come from? Guessing it is a unit thing.
+
+# Creates a range of the max and min indices.
+I_max = np.abs(Z - Z_max).argmin() + 20
+I_min = np.abs(Z - Z_min).argmin() - 20
+
+# Redefine z to just be these indices (and corresponding len).
+Z = Z[I_min:I_max]
+nz = I_max - I_min
+
+print(nz)
+
+na = [941, 13, 15]
+
+for key in trap['electrodes']:
+    Vs = trap['electrodes'][key]['V']
+    Vs = Vs.reshape(na[0], na[1], na[2])
+    Vs = np.transpose(Vs, perm)
+    Vs = Vs[:, :, I_min:I_max]
+
+print(Vs)

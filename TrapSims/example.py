@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 ### EXAMPLE 
 
 ## (1) set up variables
-path = '../HOA_trap_v1/CENTRALonly.pkl'
+path = "/Users/jacobbarnhart/Downloads/CENTRALonly.pkl"
 na = [941,13,15] # number of points per axis
 ne = 12 # number of electrodes
-perm = [1,2,0] 
+perm = [1,2,0]
 position = [0,0.07,0] # approximate trapping position
 order = 2
 
@@ -34,7 +34,14 @@ ax[0].legend()
 ax[1].legend()
 plt.show()
 
-s.plot_multipoleCoeffs()
+v1 = np.zeros(12)
+vs = []
+for i in [1,3,9,10]:
+	v = v1.copy()
+	v[i] = 1
+	vs.append(v.copy())
+print(vs)
+s.plot_multipoleCoeffs(vs)
 
 #(4) remove U4,U5,U6
 usedMultipoles = np.zeros((s.expansion_order+1)**2)
@@ -44,7 +51,7 @@ s.set_used_multipoles(usedMultipoles)
 #(5) invert the expansion from (3) to get the multipole control matrix
 s.multipole_control(False)
 
-print s.multipoleControl
+print(s.multipoleControl)
 
 #plot voltages for each multipole
 for n in range(len(s.multipoleControl)):
@@ -61,4 +68,4 @@ vs_solution1[3] = -1
 vs_solution1[10] = -1
 vs_solution1[9] = -0.919
 coeffs_solution1 = np.dot(s.multipole_expansions,vs_solution1)
-print coeffs_solution1
+print(coeffs_solution1)
